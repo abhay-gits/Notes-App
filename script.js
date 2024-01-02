@@ -1,32 +1,64 @@
-const addBtn = document.querySelector('#addBtn');
+const addBtn = document.querySelector('#addBtn')
 const main = document.querySelector('#main');
 
-addBtn.addEventListener('click', addNote);
+/* Save Function */
+function saveNote() {
+    const notes = document.querySelectorAll('.note textarea')
+    const data = [];
+    notes.forEach((note) => {
+        data.push(note.value)
+    })
+    if(data.length === 0){
+        localStorage.removeItem('notes')
+    }
+    else{
+    localStorage.setItem('notes', JSON.stringify(data))
+    }
+}
 
-function addNote() {
-    const note = document.createElement("div");
-    note.classList.add('note');
-    note.innerHTML = `
- 
-            <div class="tool">
+/* Self Running Function */
+(
+    function () {
+        const lnotes = JSON.parse(localStorage.getItem('notes'))
+        if(lnotes == null){
+            addNote();
+        }
+        else{
+            lnotes.forEach((lnote) => {
+                addNote(lnote);
+            })  
+        }
+        
+    })()
+
+addBtn.addEventListener('click', () => {
+    addNote();
+})
+function addNote(text = '') {
+    const area = document.createElement('div')
+    area.classList.add('note')
+    area.innerHTML = `
+    <div class="tool">
                 <i id="saveBtn" class="fas fa-save"></i>
                 <i id="dltBtn" class="fas fa-trash"></i>
             </div>
-            <textarea></textarea>`
-/* Save Note */
-    note.querySelector("#saveBtn").addEventListener('click',()=>{
-        localStorage.setItem('key',note)
-       console.log( localStorage.getItem('key'))
+            <textarea>${text}</textarea>
+    `
+    /* Delete Button */
+    area.querySelector('#dltBtn').addEventListener('click',()=>{
+        area.remove();
+        saveNote();
     })
-/* Delete Note */
-    note.querySelector("#dltBtn").addEventListener('click',
-    function (){
-        note.remove()
-    }
-    )
 
-    main.appendChild(note)
+    /* Save Button */
+    area.querySelector('#saveBtn').addEventListener('click',()=>{
+        saveNote();
+    })
 
-
+    /* Auto Save */
+    area.querySelector('textarea').addEventListener('input',()=>{
+        saveNote();
+    })
+    main.appendChild(area);
 }
 
